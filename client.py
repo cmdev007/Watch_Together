@@ -2,7 +2,7 @@ import socket,time
 import os,json
 PA_Inf_FLAG = False
 
-host = '192.168.1.150'
+host = '52.149.146.58'
 port = 1233
 
 while(True):
