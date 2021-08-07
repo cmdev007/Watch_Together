@@ -2,7 +2,7 @@
 
 import socket,os
 
-HOST = '127.0.0.1'  # The server's hostname or IP address
+HOST = '192.168.1.150'  # The server's hostname or IP address
 PORT = 1233        # The port used by the server
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -18,3 +18,5 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             os.system('''echo '{ "command": ["set_property", "pause", false] }' | socat - /tmp/mpvsocket''')
         elif "PA" in data:
             os.system('''echo '{ "command": ["set_property", "pause", true] }' | socat - /tmp/mpvsocket''')
+            SEEK = float(data.split("|")[-1])
+            os.system(f'''echo '{ "command": ["set_property", "time-pos", "{SEEK}"], "request_id": 100 }' | socat - /tmp/mpvsocket''')

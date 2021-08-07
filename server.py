@@ -6,7 +6,7 @@ all_cli = set()
 
 ServerSocket = socket.socket()
 ServerSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-host = '127.0.0.1'
+host = '0.0.0.0'
 port = 1233
 ThreadCount = 0
 try:
@@ -23,9 +23,11 @@ def threaded_client(connection):
         data = connection.recv(2048)
         if not data:
             break
-        if "PAUSE" in data.decode('utf-8').strip():
-            send_all("PA")
-        elif "PLAY" in data.decode('utf-8').strip():
+        data = data.decode('utf-8').strip()
+        if "PAUSE" in data:
+            SEEK = float(data.split("|")[-1])
+            send_all(f"PA|{SEEK}")
+        elif "PLAY" in data:
             send_all("PL")
     connection.close()
 
