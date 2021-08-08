@@ -12,7 +12,7 @@ while(True):
         tdata = json.loads(os.popen('''echo '{ "command": ["get_property", "time-pos"], "request_id": 100 }' | socat - /tmp/mpvsocket''').read().strip())
         TIME = tdata['data']
     except:
-        print("Something is wrong!")
+        print("Something is wrong in REALTIME SYNC ONE!")
 
     if abs(TIME-Old_Time) > 2:
         ClientSocket = socket.socket()
@@ -30,7 +30,7 @@ while(True):
             ClientSocket.send(str.encode(f"{Input}|{SEEK}"))
             ClientSocket.close()
         except:
-            print("Something is wrong!")
+            print("Something is wrong REALTIME SYNC TWO!!")
             ClientSocket.close()
 
     PSTATE = True
@@ -38,7 +38,7 @@ while(True):
         data = json.loads(os.popen('''echo '{ "command": ["get_property", "pause"] }' | socat - /tmp/mpvsocket''').read().strip())
         PSTATE = data['data']
     except:
-        print("Something is wrong!")
+        print("Something is wrong in retriving PSTATE!")
     if PSTATE and not PA_Inf_FLAG:
         ClientSocket = socket.socket()
 
