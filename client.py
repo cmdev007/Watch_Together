@@ -8,8 +8,11 @@ TIME = 0
 while(True):
     Old_Time = TIME
     #Realtime time sync
-    tdata = json.loads(os.popen('''echo '{ "command": ["get_property", "time-pos"], "request_id": 100 }' | socat - /tmp/mpvsocket''').read().strip())
-    TIME = tdata['data']
+    try:
+        tdata = json.loads(os.popen('''echo '{ "command": ["get_property", "time-pos"], "request_id": 100 }' | socat - /tmp/mpvsocket''').read().strip())
+        TIME = tdata['data']
+    except:
+        pass
     if abs(TIME-Old_Time) > 2:
         ClientSocket = socket.socket()
 
@@ -18,11 +21,13 @@ while(True):
             ClientSocket.connect((host, port))
         except socket.error as e:
             print(str(e))
-
-        Input = "SEEK"
-        tdata = json.loads(os.popen('''echo '{ "command": ["get_property", "time-pos"], "request_id": 100 }' | socat - /tmp/mpvsocket''').read().strip())
-        SEEK = tdata['data']
-        ClientSocket.send(str.encode(f"{Input}|{SEEK}"))
+        try:
+            Input = "SEEK"
+            tdata = json.loads(os.popen('''echo '{ "command": ["get_property", "time-pos"], "request_id": 100 }' | socat - /tmp/mpvsocket''').read().strip())
+            SEEK = tdata['data']
+            ClientSocket.send(str.encode(f"{Input}|{SEEK}"))
+        except:
+            pass
         ClientSocket.close()
 
     PSTATE = True
@@ -41,11 +46,15 @@ while(True):
             print(str(e))
 
         Input = "PAUSE"
-        tdata = json.loads(os.popen('''echo '{ "command": ["get_property", "time-pos"], "request_id": 100 }' | socat - /tmp/mpvsocket''').read().strip())
-        SEEK = tdata['data']
-        ClientSocket.send(str.encode(f"{Input}|{SEEK}"))
-        Response = ClientSocket.recv(1024)
-        print(Response.decode('utf-8'))
+        try:
+            tdata = json.loads(os.popen('''echo '{ "command": ["get_property", "time-pos"], "request_id": 100 }' | socat - /tmp/mpvsocket''').read().strip())
+            SEEK = tdata['data']
+            ClientSocket.send(str.encode(f"{Input}|{SEEK}"))
+            Response = ClientSocket.recv(1024)
+            print(Response.decode('utf-8'))
+        except:
+            pass
+        
         ClientSocket.close()
         PA_Inf_FLAG = True
 
