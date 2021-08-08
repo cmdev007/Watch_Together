@@ -8,9 +8,13 @@ TIME = 0
 while(True):
     Old_Time = TIME
     #Realtime time sync
-    tdata = json.loads(os.popen('''echo '{ "command": ["get_property", "time-pos"], "request_id": 100 }' | socat - /tmp/mpvsocket''').read().strip())
-    TIME = tdata['data']
-    if TIME-Old_Time > 2:
+    try:
+        tdata = json.loads(os.popen('''echo '{ "command": ["get_property", "time-pos"], "request_id": 100 }' | socat - /tmp/mpvsocket''').read().strip())
+        TIME = tdata['data']
+    except:
+        print("Something is wrong!")
+
+    if abs(TIME-Old_Time) > 2:
         ClientSocket = socket.socket()
 
         print('Waiting for connection')
@@ -20,10 +24,14 @@ while(True):
             print(str(e))
 
         Input = "SEEK"
-        tdata = json.loads(os.popen('''echo '{ "command": ["get_property", "time-pos"], "request_id": 100 }' | socat - /tmp/mpvsocket''').read().strip())
-        SEEK = tdata['data']
-        ClientSocket.send(str.encode(f"{Input}|{SEEK}"))
-        ClientSocket.close()
+        try:
+            tdata = json.loads(os.popen('''echo '{ "command": ["get_property", "time-pos"], "request_id": 100 }' | socat - /tmp/mpvsocket''').read().strip())
+            SEEK = tdata['data']
+            ClientSocket.send(str.encode(f"{Input}|{SEEK}"))
+            ClientSocket.close()
+        except:
+            print("Something is wrong!")
+            ClientSocket.close()
 
     PSTATE = True
     try:
@@ -37,17 +45,19 @@ while(True):
         print('Waiting for connection')
         try:
             ClientSocket.connect((host, port))
+            Input = "PAUSE"
+            tdata = json.loads(os.popen('''echo '{ "command": ["get_property", "time-pos"], "request_id": 100 }' | socat - /tmp/mpvsocket''').read().strip())
+            SEEK = tdata['data']
+            ClientSocket.send(str.encode(f"{Input}|{SEEK}"))
+            Response = ClientSocket.recv(1024)
+            print(Response.decode('utf-8'))
+            ClientSocket.close()
+            PA_Inf_FLAG = True
         except socket.error as e:
             print(str(e))
+            ClientSocket.close()
 
-        Input = "PAUSE"
-        tdata = json.loads(os.popen('''echo '{ "command": ["get_property", "time-pos"], "request_id": 100 }' | socat - /tmp/mpvsocket''').read().strip())
-        SEEK = tdata['data']
-        ClientSocket.send(str.encode(f"{Input}|{SEEK}"))
-        Response = ClientSocket.recv(1024)
-        print(Response.decode('utf-8'))
-        ClientSocket.close()
-        PA_Inf_FLAG = True
+        
 
     elif not PSTATE and PA_Inf_FLAG:
         ClientSocket = socket.socket()
@@ -55,14 +65,13 @@ while(True):
         print('Waiting for connection')
         try:
             ClientSocket.connect((host, port))
+            Input = "PLAY"
+            ClientSocket.send(str.encode(Input))
+            Response = ClientSocket.recv(1024)
+            print(Response.decode('utf-8'))
         except socket.error as e:
             print(str(e))
-
-        Input = "PLAY"
-        ClientSocket.send(str.encode(Input))
-        Response = ClientSocket.recv(1024)
-        print(Response.decode('utf-8'))
-
         ClientSocket.close()
         PA_Inf_FLAG = False
-    time.sleep(0.5)
+    if not PSTATE:
+        time.sleep(0.5)
