@@ -20,3 +20,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             os.system('''echo '{ "command": ["set_property", "pause", true] }' | socat - /tmp/mpvsocket''')
             SEEK = float(data.split("|")[-1])
             os.system('''echo '{ "command": ["set_property", "time-pos", "''' + str(SEEK) + '''"], "request_id": 100 }' | socat - /tmp/mpvsocket''')
+        elif "SA" in data:
+            SEEK = float(data.split("|")[-1])
+            os.system('''echo '{ "command": ["set_property", "time-pos", "''' + str(SEEK) + '''"], "request_id": 100 }' | socat - /tmp/mpvsocket''')

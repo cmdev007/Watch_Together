@@ -4,8 +4,27 @@ PA_Inf_FLAG = False
 
 host = '52.149.146.58'
 port = 1233
-
+TIME = 0
 while(True):
+    Old_Time = TIME
+    #Realtime time sync
+    tdata = json.loads(os.popen('''echo '{ "command": ["get_property", "time-pos"], "request_id": 100 }' | socat - /tmp/mpvsocket''').read().strip())
+    TIME = tdata['data']
+    if TIME-Old_Time > 2:
+        ClientSocket = socket.socket()
+
+        print('Waiting for connection')
+        try:
+            ClientSocket.connect((host, port))
+        except socket.error as e:
+            print(str(e))
+
+        Input = "SEEK"
+        tdata = json.loads(os.popen('''echo '{ "command": ["get_property", "time-pos"], "request_id": 100 }' | socat - /tmp/mpvsocket''').read().strip())
+        SEEK = tdata['data']
+        ClientSocket.send(str.encode(f"{Input}|{SEEK}"))
+        ClientSocket.close()
+
     PSTATE = True
     try:
         data = json.loads(os.popen('''echo '{ "command": ["get_property", "pause"] }' | socat - /tmp/mpvsocket''').read().strip())
@@ -22,7 +41,7 @@ while(True):
             print(str(e))
 
         Input = "PAUSE"
-        tdata = data = json.loads(os.popen('''echo '{ "command": ["get_property", "time-pos"], "request_id": 100 }' | socat - /tmp/mpvsocket''').read().strip())
+        tdata = json.loads(os.popen('''echo '{ "command": ["get_property", "time-pos"], "request_id": 100 }' | socat - /tmp/mpvsocket''').read().strip())
         SEEK = tdata['data']
         ClientSocket.send(str.encode(f"{Input}|{SEEK}"))
         Response = ClientSocket.recv(1024)

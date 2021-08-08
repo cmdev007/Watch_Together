@@ -29,6 +29,9 @@ def threaded_client(connection):
             send_all(f"PA|{SEEK}")
         elif "PLAY" in data:
             send_all("PL")
+        elif "SEEK" in data:
+            SEEK = float(data.split("|")[-1])
+            send_all(f"SA|{SEEK}")
     connection.close()
 
 def send_all(msg):
