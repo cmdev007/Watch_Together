@@ -7,6 +7,10 @@ PORT = 1233        # The port used by the server
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+    s.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 1)
+    s.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 3)
+    s.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 5)
     while True:
         data = s.recv(1024)
         if data:
