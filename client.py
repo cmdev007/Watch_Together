@@ -76,3 +76,5 @@ while(True):
         PA_Inf_FLAG = False
     if not PSTATE:
         time.sleep(0.5)
+    else:
+        time.sleep(0.1)
