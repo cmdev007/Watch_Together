@@ -36,7 +36,7 @@ def actioner():
                 os.system('''echo '{ "command": ["set_property", "pause", true] }' | socat - /tmp/mpvsocket''')
                 # SEEK = float(data.split("|")[-1])
                 # os.system('''echo '{ "command": ["set_property", "time-pos", "''' + str(SEEK) + '''"], "request_id": 100 }' | socat - /tmp/mpvsocket''')
-            elif "SA" in data:
+            elif "SA" in data and SEEK_FLAG:
                 SEEK = float(data.split("|")[-1])
                 os.system('''echo '{ "command": ["set_property", "time-pos", "''' + str(SEEK) + '''"], "request_id": 100 }' | socat - /tmp/mpvsocket''')
                 SEEK_FLAG = False
@@ -69,6 +69,7 @@ while(True):
         except:
             pass
         ClientSocket.close()
+        SEEK_FLAG = False
 
     PSTATE = True
     try:
@@ -116,7 +117,7 @@ while(True):
         PA_Inf_FLAG = False
     
     if not SEEK_FLAG:
-        if S_Counter < 4:
+        if S_Counter < 2:
             S_Counter+=1
         else:
             S_Counter = 0
